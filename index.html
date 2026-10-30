@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FidelizaNFC - Tarjetas de Lealtad Digitales</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center p-4 sm:p-6">
+
+    <!-- Contenedor Principal -->
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden mb-6">
+        
+        <!-- Header del Negocio -->
+        <div id="header-bg" class="p-6 transition-colors duration-300 text-white">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <span id="tag-rubro" class="text-xs uppercase tracking-wider font-semibold bg-black/20 px-2.5 py-1 rounded-full">Barbería</span>
+                    <h1 id="lbl-nombre-negocio" class="text-2xl font-extrabold mt-2">Barbería El Toro</h1>
+                </div>
+                <div class="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                </div>
+            </div>
+            <p id="lbl-premio-meta" class="text-sm opacity-90 font-medium">🎯 Meta: 6 sellos = ¡Corte de Cabello Gratis!</p>
+        </div>
+
+        <!-- Cuerpo de la Tarjeta (Sellos) -->
+        <div class="p-6 bg-slate-900">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-semibold text-slate-400 tracking-wide uppercase">Tu Tarjeta Virtual</h2>
+                <span id="lbl-progreso-texto" class="text-sm font-bold text-indigo-400">0 / 6 sellos</span>
+            </div>
+
+            <!-- Rejilla de Sellos Dinámica -->
+            <div id="grid-sellos" class="grid grid-cols-3 gap-3 mb-6">
+                <!-- Se inyecta por JS -->
+            </div>
+
+            <!-- Banner de Recompensa Lista -->
+            <div id="banner-premio" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center mb-6 animate-pulse">
+                <p class="text-emerald-400 font-bold text-sm">🎉 ¡Felicidades! Tienes un premio disponible para canjear hoy.</p>
+            </div>
+
+            <!-- Simulador de Mostrador NFC / QR -->
+            <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 mb-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Simulación de Mostrador (Cliente)</h3>
+                <button onclick="simularTapNFC()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 124h.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+                    Tocar NFC / Escanear QR
+                </button>
+            </div>
+
+            <!-- Controles de Negocio / Panel Administrativo -->
+            <div class="border-t border-slate-800 pt-4 mt-4">
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Cambiar de Negocio (Demo)</label>
+                <select id="select-negocio" onchange="cambiarNegocio()" class="w-full bg-slate-800 border border-slate-700 text-white text-sm rounded-xl p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="barberia">Barbería El Toro</option>
+                    <option value="polleria">Pollería El Brasero</option>
+                    <option value="restaurante">Restaurante Sabor Peruano</option>
+                    <option value="dental">Centro Dental Sonrisas</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2 mt-3">
+                <button onclick="canjearPremio()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 px-3 rounded-lg transition">Canjear Premio</button>
+                <button onclick="reiniciarTarjeta()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-rose-400 text-xs font-semibold py-2 px-3 rounded-lg transition">Reiniciar Tarjeta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de lógica -->
+    <script>
+        const negocios = {
+            barberia: {
+                nombre: "Barbería El Toro",
+                rubro: "Barbería",
+                color: "bg-rose-600",
+                hexColor: "#e11d48",
+                maxSellos: 6,
+                premio: "¡Corte de Cabello Gratis!",
+                pin: "1234"
+            },
+            polleria: {
+                nombre: "Pollería El Brasero",
+                rubro: "Pollería",
+                color: "bg-amber-600",
+                hexColor: "#d97706",
+                maxSellos: 6,
+                premio: "1/4 de Pollo a la Brasa Gratis",
+                pin: "2024"
+            },
+            restaurante: {
+                nombre: "Restaurante Sabor Peruano",
+                rubro: "Restaurante",
+                color: "bg-emerald-600",
+                hexColor: "#059669",
+                maxSellos: 8,
+                premio: "Postre o Bebida de cortesía",
+                pin: "5678"
+            },
+            dental: {
+                nombre: "Centro Dental Sonrisas",
+                rubro: "Salud & Estética",
+                color: "bg-sky-600",
+                hexColor: "#0284c7",
+                maxSellos: 5,
+                premio: "Limpieza Dental Profilaxis 50% Dsc.",
+                pin: "0000"
+            }
+        };
+
+        let negocioActualKey = "barberia";
+        let sellosActuales = 2; // Empezamos con 2 para demo
+
+        function renderizarApp() {
+            const config = negocios[negocioActualKey];
+            
+            // Textos y metadatos
+            document.getElementById("lbl-nombre-negocio").innerText = config.nombre;
+            document.getElementById("tag-rubro").innerText = config.rubro;
+            document.getElementById("lbl-premio-meta").innerText = `🎯 Meta: ${config.maxSellos} sellos = ${config.premio}`;
+            document.getElementById("lbl-progreso-texto").innerText = `${sellosActuales} / ${config.maxSellos} sellos`;
+
+            // Color de cabecera dinámico
+            const header = document.getElementById("header-bg");
+            header.className = `p-6 transition-colors duration-300 text-white ${config.color}`;
+
+            // Rejilla de sellos
+            const grid = document.getElementById("grid-sellos");
+            grid.innerHTML = "";
+
+            for (let i = 0; i < config.maxSellos; i++) {
+                const completado = i < sellosActuales;
+                const div = document.createElement("div");
+                div.className = `aspect-square rounded-xl flex items-center justify-center font-bold text-lg transition-all duration-300 border ${
+                    completado 
+                    ? "bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-500/20 scale-105" 
+                    : "bg-slate-800/80 text-slate-500 border-slate-700"
+                }`;
+                div.innerHTML = completado ? "★" : (i + 1);
+                grid.appendChild(div);
+            }
+
+            // Banner premio
+            const banner = document.getElementById("banner-premio");
+            if (sellosActuales >= config.maxSellos) {
+                banner.classList.remove("hidden");
+            } else {
+                banner.classList.add("hidden");
+            }
+        }
+
+        function cambiarNegocio() {
+            const select = document.getElementById("select-negocio");
+            negocioActualKey = select.value;
+            sellosActuales = 0;
+            renderizarApp();
+        }
+
+        function simularTapNFC() {
+            const config = negocios[negocioActualKey];
+
+            if (sellosActuales >= config.maxSellos) {
+                alert(`¡Este cliente ya completó su tarjeta! Premio disponible: ${config.premio}`);
+                return;
+            }
+
+            // Pedir PIN anti-fraude del empleado
+            const pinInput = prompt(`[Mostrador NFC] Ingrese el PIN de empleado (${config.nombre}):\n(Pista PIN de prueba: ${config.pin})`);
+
+            if (pinInput === null) return; // Cancelado
+
+            if (pinInput === config.pin) {
+                sellosActuales++;
+                renderizarApp();
+                if (sellosActuales === config.maxSellos) {
+                    alert(`🎉 ¡Sello registrado! ¡El cliente ha completado los ${config.maxSellos} sellos y ganó: ${config.premio}!`);
+                } else {
+                    alert(`✅ ¡Sello añadido con éxito! (${sellosActuales}/${config.maxSellos})`);
+                }
+            } else {
+                alert("❌ PIN incorrecto. Acceso denegado.");
+            }
+        }
+
+        function canjearPremio() {
+            const config = negocios[negocioActualKey];
+            if (sellosActuales >= config.maxSellos) {
+                if (confirm(`¿Desea canjear el premio "${config.premio}" y reiniciar la tarjeta?`)) {
+                    sellosActuales = 0;
+                    renderizarApp();
+                    alert("🎁 ¡Premio canjeado con éxito! Tarjeta reiniciada.");
+                }
+            } else {
+                alert(`Aún te faltan sellos para canjear el premio (${sellosActuales}/${config.maxSellos}).`);
+            }
+        }
+
+        function reiniciarTarjeta() {
+            if (confirm("¿Estás seguro de reiniciar los sellos de esta tarjeta?")) {
+                sellosActuales = 0;
+                renderizarApp();
+            }
+        }
+
+        // Inicializar al cargar
+        renderizarApp();
+    </script>
+</body>
+</html>
