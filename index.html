@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjeta de Lealtad Digital</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400,500,600,700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Tarjeta Principal del Cliente -->
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden mb-6">
+        
+        <!-- Header del Negocio (Dinámico con Logo y Colores) -->
+        <div id="header-bg" class="p-6 transition-all duration-300 text-white bg-indigo-600">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <span id="tag-rubro" class="text-xs uppercase tracking-wider font-semibold bg-black/20 px-2.5 py-1 rounded-full">Programa de Lealtad</span>
+                    <h1 id="lbl-nombre-negocio" class="text-2xl font-extrabold mt-2">Cargando negocio...</h1>
+                </div>
+                <!-- Contenedor del Logo o Icono por defecto -->
+                <div id="header-logo-container" class="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm flex items-center justify-center w-12 h-12 overflow-hidden shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                </div>
+            </div>
+            <p id="lbl-premio-meta" class="text-sm opacity-90 font-medium">🎯 Meta: Cargando...</p>
+        </div>
+
+        <!-- Tarjeta Virtual de Sellos -->
+        <div class="p-6 bg-slate-900">
+            
+            <!-- Frase de Bienvenida Personalizada -->
+            <div id="box-bienvenida" class="hidden mb-4 p-3 bg-slate-950/40 border border-slate-800 rounded-xl text-center">
+                <p id="lbl-bienvenida" class="text-xs text-indigo-300 font-medium italic"></p>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-semibold text-slate-400 tracking-wide uppercase">Tu Tarjeta Virtual</h2>
+                <span id="lbl-progreso-texto" class="text-sm font-bold text-indigo-400">0 / 0 sellos</span>
+            </div>
+
+            <!-- Rejilla de sellos -->
+            <div id="grid-sellos" class="grid grid-cols-3 gap-3 mb-6"></div>
+
+            <!-- Banner de Recompensa -->
+            <div id="banner-premio" class="hidden bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-center mb-6 animate-pulse">
+                <p class="text-emerald-400 font-bold text-sm">🎉 ¡Felicidades! Muestra esta pantalla en caja para canjear tu premio.</p>
+            </div>
+
+            <!-- Botón de Registro dinámico -->
+            <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-4 mb-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Control de Visita</h3>
+                <button id="btn-registrar" onclick="registrarSello()" class="w-full bg-indigo-600 hover:opacity-90 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer">
+                    ✨ Registrar Sello
+                </button>
+            </div>
+
+            <!-- Botón de Contacto / WhatsApp del Negocio (Nueva Idea Añadida) -->
+            <div id="box-whatsapp" class="hidden mb-4">
+                <a id="link-whatsapp" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2 text-xs">
+                    💬 Contactar con el Negocio (WhatsApp)
+                </a>
+            </div>
+
+            <div class="flex gap-2 mt-3">
+                <button onclick="canjearPremio()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold py-2 px-3 rounded-lg transition">Canjear Premio</button>
+                <button onclick="reiniciarTarjeta()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-rose-400 text-xs font-semibold py-2 px-3 rounded-lg transition">Reiniciar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Administración Oculto (?admin=1) -->
+    <div id="panel-admin" class="hidden w-full max-w-md bg-slate-900 border border-amber-500/50 rounded-2xl p-5 text-sm mb-6">
+        <h3 class="font-bold text-amber-400 mb-2">🛠️ Panel Admin (Diseño & Marca Optimizada)</h3>
+        <p class="text-xs text-slate-400 mb-3">Personaliza cada detalle para tu nuevo cliente:</p>
+        
+        <label class="text-xs text-slate-400">Nombre del Negocio:</label>
+        <input type="text" id="gen-nombre" placeholder="Ej. Pollería El Brasero" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg mb-2 text-xs">
+        
+        <label class="text-xs text-slate-400">Rubro:</label>
+        <input type="text" id="gen-rubro" placeholder="Ej. Pollería, Barbería, Hotel" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg mb-2 text-xs">
+
+        <label class="text-xs text-slate-400">Frase de Bienvenida:</label>
+        <input type="text" id="gen-welcome" placeholder="Ej. ¡Gracias por preferirnos hoy!" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg mb-2 text-xs">
+
+        <label class="text-xs text-slate-400">Subir Logo desde la Computadora (Optimizado automático):</label>
+        <input type="file" id="gen-file-logo" accept="image/*" onchange="comprimirYConvertirLogo(event)" class="w-full bg-slate-800 border border-slate-700 text-slate-300 p-2 rounded-lg mb-2 text-xs cursor-pointer">
+        <input type="hidden" id="gen-logo" value="">
+
+        <label class="text-xs text-slate-400">WhatsApp del Negocio (Opcional - Ej: 51999999999):</label>
+        <input type="text" id="gen-whatsapp" placeholder="51999999999" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg mb-2 text-xs">
+
+        <label class="text-xs text-slate-400">Premio o Recompensa:</label>
+        <input type="text" id="gen-premio" placeholder="Ej. 1/4 de pollo gratis" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg mb-2 text-xs">
+        
+        <div class="flex gap-2 mb-2">
+            <div class="w-1/2">
+                <label class="text-xs text-slate-400">Cant. Sellos:</label>
+                <input type="number" id="gen-max" value="6" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg text-xs">
+            </div>
+            <div class="w-1/2">
+                <label class="text-xs text-slate-400">Color:</label>
+                <select id="gen-color" class="w-full bg-slate-800 border border-slate-700 text-white p-2 rounded-lg text-xs">
+                    <option value="bg-amber-600">Naranja / Fuego (Pollerías)</option>
+                    <option value="bg-rose-600">Rojo / Carmesí (Barberías)</option>
+                    <option value="bg-emerald-600">Verde / Menta (Cafés / Spas)</option>
+                    <option value="bg-sky-600">Azul Celeste (Cevicherías)</option>
+                    <option value="bg-slate-800">Negro / Elegante (Hoteles)</option>
+                    <option value="bg-indigo-600">Indigo (Estándar)</option>
+                </select>
+            </div>
+        </div>
+        
+        <button onclick="generarEnlaceCliente()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded-lg text-xs transition mt-2">Generar Enlace NFC Optimizado</button>
+        <input type="text" id="gen-resultado" readonly placeholder="El enlace generado aparecerá aquí..." class="w-full bg-slate-950 border border-slate-800 text-indigo-400 p-2 rounded-lg mt-2 text-xs select-all">
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        
+        const negocioConfig = {
+            id: params.get("id") || params.get("nombre") || "demo-negocio",
+            nombre: decodeURIComponent(params.get("nombre") || "Negocio Demostración"),
+            rubro: decodeURIComponent(params.get("rubro") || "Programa de Lealtad"),
+            welcome: decodeURIComponent(params.get("welcome") || ""),
+            logo: decodeURIComponent(params.get("logo") || ""),
+            whatsapp: params.get("whatsapp") || "",
+            maxSellos: parseInt(params.get("max")) || 6,
+            premio: decodeURIComponent(params.get("premio") || "¡Premio Especial!"),
+            color: params.get("color") || "bg-indigo-600"
+        };
+
+        const storageKey = `sellos_${negocioConfig.id}`;
+        const timeKey = `ultimo_sello_${negocioConfig.id}`;
+        
+        let sellosActuales = parseInt(localStorage.getItem(storageKey)) || 0;
+
+        if (params.get("admin") === "1") {
+            document.getElementById("panel-admin").classList.remove("hidden");
+            document.getElementById("gen-nombre").value = negocioConfig.nombre;
+            document.getElementById("gen-rubro").value = negocioConfig.rubro;
+            document.getElementById("gen-welcome").value = negocioConfig.welcome;
+            document.getElementById("gen-logo").value = negocioConfig.logo;
+            document.getElementById("gen-whatsapp").value = negocioConfig.whatsapp;
+            document.getElementById("gen-premio").value = negocioConfig.premio;
+            document.getElementById("gen-max").value = negocioConfig.maxSellos;
+            document.getElementById("gen-color").value = negocioConfig.color;
+        }
+
+        // Función inteligente para comprimir el logo local y evitar URLs pesadas
+        function comprimirYConvertirLogo(event) {
+            const archivo = event.target.files[0];
+            if (!archivo) return;
+
+            const lector = new FileReader();
+            lector.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    
+                    // Redimensionar automáticamente a 120x120px para optimizar el chip NFC
+                    const tamañoMaximo = 120;
+                    let ancho = img.width;
+                    let alto = img.height;
+
+                    if (ancho > alto) {
+                        if (ancho > tamañoMaximo) {
+                            alto *= tamañoMaximo / ancho;
+                            ancho = tamañoMaximo;
+                        }
+                    } else {
+                        if (alto > tamañoMaximo) {
+                            ancho *= tamañoMaximo / alto;
+                            alto = tamañoMaximo;
+                        }
+                    }
+
+                    canvas.width = ancho;
+                    canvas.height = alto;
+                    ctx.drawImage(img, 0, 0, ancho, alto);
+
+                    // Guardar como imagen comprimida en Base64
+                    const imagenComprimida = canvas.toDataURL("image/jpeg", 0.7);
+                    document.getElementById("gen-logo").value = imagenComprimida;
+                };
+                img.src = e.target.result;
+            };
+            lector.readAsDataURL(archivo);
+        }
+
+        function renderizarApp() {
+            document.getElementById("lbl-nombre-negocio").innerText = negocioConfig.nombre;
+            document.getElementById("tag-rubro").innerText = negocioConfig.rubro;
+            document.getElementById("lbl-premio-meta").innerText = `🎯 Meta: ${negocioConfig.maxSellos} sellos = ${negocioConfig.premio}`;
+            document.getElementById("lbl-progreso-texto").innerText = `${sellosActuales} / ${negocioConfig.maxSellos} sellos`;
+
+            // Frase de bienvenida
+            const boxBienvenida = document.getElementById("box-bienvenida");
+            const lblBienvenida = document.getElementById("lbl-bienvenida");
+            if (negocioConfig.welcome.trim() !== "") {
+                lblBienvenida.innerText = `"${negocioConfig.welcome}"`;
+                boxBienvenida.classList.remove("hidden");
+            } else {
+                boxBienvenida.classList.add("hidden");
+            }
+
+            // Botón de WhatsApp
+            const boxWhatsapp = document.getElementById("box-whatsapp");
+            const linkWhatsapp = document.getElementById("link-whatsapp");
+            if (negocioConfig.whatsapp.trim() !== "") {
+                linkWhatsapp.href = `https://wa.me/${negocioConfig.whatsapp}?text=Hola,%20vengo%20de%20mi%20tarjeta%20digital%20de%20lealtad%20y%20deseo%20hacer%20una%20consulta.`;
+                boxWhatsapp.classList.remove("hidden");
+            } else {
+                boxWhatsapp.classList.add("hidden");
+            }
+
+            // Logo o Icono por defecto
+            const logoContainer = document.getElementById("header-logo-container");
+            if (negocioConfig.logo.trim() !== "") {
+                logoContainer.innerHTML = `<img src="${negocioConfig.logo}" alt="Logo" class="w-full h-full object-cover rounded-xl">`;
+                logoContainer.className = "bg-white p-0.5 rounded-xl shadow-md flex items-center justify-center w-12 h-12 overflow-hidden";
+            }
+
+            // Aplicar color de marca
+            const header = document.getElementById("header-bg");
+            const btnRegistrar = document.getElementById("btn-registrar");
+            header.className = `p-6 transition-all duration-300 text-white ${negocioConfig.color}`;
+            btnRegistrar.className = `w-full ${negocioConfig.color} hover:opacity-90 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer`;
+
+            // Rejilla de sellos
+            const grid = document.getElementById("grid-sellos");
+            grid.innerHTML = "";
+
+            for (let i = 0; i < negocioConfig.maxSellos; i++) {
+                const completado = i < sellosActuales;
+                const div = document.createElement("div");
+                div.className = `aspect-square rounded-xl flex items-center justify-center font-bold text-lg transition-all duration-300 border ${
+                    completado 
+                    ? "bg-amber-400 text-slate-950 border-amber-300 shadow-md shadow-amber-500/20 scale-105" 
+                    : "bg-slate-800/80 text-slate-500 border-slate-700"
+                }`;
+                div.innerHTML = completado ? "★" : (i + 1);
+                grid.appendChild(div);
+            }
+
+            const banner = document.getElementById("banner-premio");
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                banner.classList.remove("hidden");
+            } else {
+                banner.classList.add("hidden");
+            }
+        }
+
+        function registrarSello() {
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                alert(`¡Felicidades! Ya completaste tu tarjeta. Muestra esta pantalla en caja para canjear: ${negocioConfig.premio}`);
+                return;
+            }
+
+            const ultimaVisita = localStorage.getItem(timeKey);
+            const ahora = new Date().getTime();
+            const horas24 = 24 * 60 * 60 * 1000;
+
+            if (ultimaVisita && (ahora - parseInt(ultimaVisita)) < horas24) {
+                const tiempoRestante = horas24 - (ahora - parseInt(ultimaVisita));
+                const horasRestantes = Math.floor(tiempoRestante / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+
+                alert(`⏱️ ¡Ya registraste tu sello de hoy!\n\nVuelve en ${horasRestantes}h ${minutosRestantes}m para sumar tu siguiente visita a ${negocioConfig.nombre}.`);
+                return;
+            }
+
+            sellosActuales++;
+            localStorage.setItem(storageKey, sellosActuales);
+            localStorage.setItem(timeKey, ahora);
+            
+            renderizarApp();
+
+            if (sellosActuales === negocioConfig.maxSellos) {
+                alert(`🎉 ¡SELLO REGISTRADO!\n\n¡Felicidades, completaste tus ${negocioConfig.maxSellos} sellos! Ganaste: ${negocioConfig.premio}`);
+            } else {
+                alert(`✅ ¡Sello añadido con éxito! (${sellosActuales}/${negocioConfig.maxSellos})\n\n¡Gracias por tu visita a ${negocioConfig.nombre}!`);
+            }
+        }
+
+        function canjearPremio() {
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                if (confirm(`¿Desea canjear el premio "${negocioConfig.premio}" y reiniciar la tarjeta?`)) {
+                    sellosActuales = 0;
+                    localStorage.setItem(storageKey, sellosActuales);
+                    localStorage.removeItem(timeKey);
+                    renderizarApp();
+                    alert("🎁 ¡Premio canjeado con éxito! Tarjeta lista para un nuevo ciclo.");
+                }
+            } else {
+                alert(`Aún te faltan sellos para canjear el premio (${sellosActuales}/${negocioConfig.maxSellos}).`);
+            }
+        }
+
+        function reiniciarTarjeta() {
+            if (confirm("¿Estás seguro de reiniciar los sellos de esta tarjeta?")) {
+                sellosActuales = 0;
+                localStorage.setItem(storageKey, sellosActuales);
+                localStorage.removeItem(timeKey);
+                renderizarApp();
+            }
+        }
+
+        function generarEnlaceCliente() {
+            const nombre = document.getElementById("gen-nombre").value.trim();
+            const rubro = document.getElementById("gen-rubro").value.trim() || "Programa de Lealtad";
+            const welcome = document.getElementById("gen-welcome").value.trim();
+            const logo = document.getElementById("gen-logo").value.trim();
+            const whatsapp = document.getElementById("gen-whatsapp").value.trim();
+            const premio = document.getElementById("gen-premio").value.trim();
+            const max = document.getElementById("gen-max").value;
+            const color = document.getElementById("gen-color").value;
+
+            if (!nombre || !premio) {
+                alert("Por favor completa al menos el nombre y el premio.");
+                return;
+            }
+
+            const idUnico = nombre.toLowerCase().replace(/[^a-z0-9]/g, "-");
+            const baseUrl = window.location.origin + window.location.pathname;
+            const urlFinal = `${baseUrl}?id=${idUnico}&nombre=${encodeURIComponent(nombre)}&rubro=${encodeURIComponent(rubro)}&welcome=${encodeURIComponent(welcome)}&logo=${encodeURIComponent(logo)}&whatsapp=${encodeURIComponent(whatsapp)}&max=${max}&premio=${encodeURIComponent(premio)}&color=${encodeURIComponent(color)}`;
+            
+            document.getElementById("gen-resultado").value = urlFinal;
+        }
+
+        renderizarApp();
+    </script>
+</body>
+</html>
