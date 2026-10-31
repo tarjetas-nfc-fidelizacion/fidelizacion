@@ -1,0 +1,35 @@
+function registrarSello() {
+    if (sellosActuales >= negocioConfig.maxSellos) {
+        alert(`¡Felicidades! Ya completaste tu tarjeta. Muestra esta pantalla al cajero para canjear: ${negocioConfig.premio}`);
+        return;
+    }
+
+    // Claves en el teléfono para guardar la hora del último sello
+    const timeKey = `ultimo_sello_${negocioConfig.id}`;
+    const ultimaVisita = localStorage.getItem(timeKey);
+    const ahora = new Date().getTime();
+    const horas24 = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+
+    // Verificar si pasaron 24 horas desde el último sello
+    if (ultimaVisita && (ahora - parseInt(ultimaVisita)) < horas24) {
+        const tiempoRestante = horas24 - (ahora - parseInt(ultimaVisita));
+        const horasRestantes = Math.floor(tiempoRestante / (1000 * 60 * 60));
+        const minutosRestantes = Math.floor((tiempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+
+        alert(`⏱️ ¡Ya registraste tu sello de hoy!\n\nVuelve en ${horasRestantes}h ${minutosRestantes}m para sumar tu siguiente visita a ${negocioConfig.nombre}.`);
+        return;
+    }
+
+    // Registrar nuevo sello y guardar la hora actual
+    sellosActuales++;
+    localStorage.setItem(storageKey, sellosActuales);
+    localStorage.setItem(timeKey, ahora);
+    
+    renderizarApp();
+
+    if (sellosActuales === negocioConfig.maxSellos) {
+        alert(`🎉 ¡SELLO REGISTRADO!\n\n¡Felicidades, completaste tus ${negocioConfig.maxSellos} sellos! Ganaste: ${negocioConfig.premio}`);
+    } else {
+        alert(`✅ ¡Sello añadido con éxito! (${sellosActuales}/${negocioConfig.maxSellos})\n\n¡Gracias por tu visita a ${negocioConfig.nombre}!`);
+    }
+}
