@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarjeta de Lealtad Digital - Corporate</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400,500,600,700;800&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Plus Jakarta Sans', sans-serif; } </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
+
+    <!-- Tarjeta Principal del Cliente -->
+    <div class="w-full max-w-md bg-slate-900 border border-slate-800/80 rounded-3xl shadow-2xl overflow-hidden mb-6 backdrop-blur-xl">
+        
+        <!-- Header Corporativo -->
+        <div id="header-bg" class="p-6 transition-all duration-300 text-white bg-indigo-600 relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="flex justify-between items-start mb-4 relative z-10">
+                <div>
+                    <span id="tag-rubro" class="text-[10px] uppercase tracking-widest font-extrabold bg-black/25 px-3 py-1 rounded-full border border-white/10">Programa VIP</span>
+                    <h1 id="lbl-nombre-negocio" class="text-2xl font-extrabold mt-2 tracking-tight">Cargando negocio...</h1>
+                </div>
+                <div id="header-icon-container" class="bg-white/20 p-3 rounded-2xl backdrop-blur-md shadow-inner flex items-center justify-center w-12 h-12">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm0 13C10.832 21 2 20 2 12V8.5C2 7.12 3.12 6 4.5 6h15C20.88 6 22 7.12 22 8.5V12c0 8-8.832 9-10 9z"></path></svg>
+                </div>
+            </div>
+            <p id="lbl-premio-meta" class="text-xs opacity-90 font-medium tracking-wide relative z-10">🎯 Meta: Cargando...</p>
+        </div>
+
+        <!-- Cuerpo de la Tarjeta de Sellos -->
+        <div class="p-6 bg-slate-900">
+            
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xs font-bold text-slate-400 tracking-wider uppercase">Tarjeta Digital Activa</h2>
+                <span id="lbl-progreso-texto" class="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-lg border border-indigo-500/20">0 / 0 sellos</span>
+            </div>
+
+            <!-- Rejilla de sellos con Íconos por Rubro -->
+            <div id="grid-sellos" class="grid grid-cols-3 gap-3 mb-6"></div>
+
+            <!-- Banner de Recompensa -->
+            <div id="banner-premio" class="hidden bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/40 rounded-2xl p-4 text-center mb-6 animate-pulse shadow-lg shadow-emerald-950">
+                <p class="text-emerald-400 font-bold text-xs uppercase tracking-wide">🎉 ¡Premio Disponible!</p>
+                <p class="text-slate-200 text-xs mt-1">Muestra esta pantalla en caja para reclamar tu beneficio.</p>
+            </div>
+
+            <!-- Botón de Registro (24h) -->
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 mb-4 shadow-inner">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Control de Visita</h3>
+                <button id="btn-registrar" onclick="registrarSello()" class="w-full bg-indigo-600 hover:opacity-90 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-indigo-600/30 transition duration-200 flex items-center justify-center gap-2 cursor-pointer text-sm">
+                    ✨ Registrar Sello
+                </button>
+            </div>
+
+            <!-- Botón de WhatsApp -->
+            <div id="box-whatsapp" class="hidden mb-4">
+                <a id="link-whatsapp" href="#" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-emerald-950 transition flex items-center justify-center gap-2 text-xs">
+                    💬 Contactar por WhatsApp
+                </a>
+            </div>
+
+            <!-- Botón Canjear (Único botón visible para el cliente) -->
+            <div class="mt-4 pt-2 border-t border-slate-800/60">
+                <button onclick="canjearPremio()" class="w-full bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold py-3 px-3 rounded-xl transition cursor-pointer flex items-center justify-center gap-2">
+                    🎁 Canjear Premio Cumplido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel de Administración Oculto (?admin=1) -->
+    <div id="panel-admin" class="hidden w-full max-w-md bg-slate-900 border border-amber-500/50 rounded-3xl p-6 text-sm mb-6 shadow-2xl">
+        <h3 class="font-bold text-amber-400 text-base mb-1">🛠️ Panel Admin Multi-Rubro</h3>
+        <p class="text-xs text-slate-400 mb-4">Crea enlaces personalizados para tus acrílicos NFC:</p>
+        
+        <label class="text-[11px] font-semibold text-slate-300">Nombre del Negocio:</label>
+        <input type="text" id="gen-nombre" placeholder="Ej. Pollería El Brasero / Spa Bella" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl mb-3 text-xs focus:border-amber-500 outline-none">
+        
+        <label class="text-[11px] font-semibold text-slate-300">Rubro del Negocio:</label>
+        <select id="gen-rubro" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl mb-3 text-xs focus:border-amber-500 outline-none">
+            <option value="Restaurantes">Restaurantes / Pollerías / Comida Rápida (Ícono: Fuego)</option>
+            <option value="Barbería">Barberías / Centro de Belleza (Ícono: Tijeras)</option>
+            <option value="Spa">Spa's / Estética (Ícono: Flor Loto)</option>
+            <option value="Cafetería">Cafeterías / Pastelerías (Ícono: Café)</option>
+            <option value="Cevichería">Cevicherías / Marisquerías (Ícono: Pez/Ancla)</option>
+            <option value="Veterinaria">Veterinarias / Pet Shops (Ícono: Huella)</option>
+            <option value="Dental">Centro Dental / Salud (Ícono: Diente)</option>
+            <option value="Hotel">Hoteles / Alojamientos (Ícono: Estrella)</option>
+            <option value="Ropa">Venta de Ropa / Tienda / Retail (Ícono: Bolsa de Compras)</option>
+        </select>
+
+        <label class="text-[11px] font-semibold text-slate-300">Premio o Recompensa:</label>
+        <input type="text" id="gen-premio" placeholder="Ej. 1/4 Pollo gratis / Limpieza dental 50%" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl mb-3 text-xs focus:border-amber-500 outline-none">
+        
+        <label class="text-[11px] font-semibold text-slate-300">WhatsApp del Negocio (Ej: 51999999999):</label>
+        <input type="text" id="gen-whatsapp" placeholder="51999999999" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl mb-3 text-xs focus:border-amber-500 outline-none">
+
+        <div class="flex gap-2 mb-4">
+            <div class="w-1/2">
+                <label class="text-[11px] font-semibold text-slate-300">Cant. Sellos:</label>
+                <input type="number" id="gen-max" value="6" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl text-xs focus:border-amber-500 outline-none">
+            </div>
+            <div class="w-1/2">
+                <label class="text-[11px] font-semibold text-slate-300">Color de Marca:</label>
+                <select id="gen-color" class="w-full bg-slate-950 border border-slate-800 text-white p-2.5 rounded-xl text-xs focus:border-amber-500 outline-none">
+                    <option value="bg-amber-600">Naranja (Comida / Pollerías)</option>
+                    <option value="bg-rose-600">Rojo (Barberías / Hamburguesas)</option>
+                    <option value="bg-emerald-600">Verde Menta (Spa / Cafés)</option>
+                    <option value="bg-sky-600">Azul Sky (Cevicherías / Dental)</option>
+                    <option value="bg-indigo-600">Indigo (Veterinarias / Tiendas)</option>
+                    <option value="bg-slate-800">Negro Lujo (Hoteles / Estética)</option>
+                </select>
+            </div>
+        </div>
+        
+        <button onclick="generarEnlaceCliente()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-600/30 cursor-pointer">Generar Enlace NFC Corto</button>
+        <input type="text" id="gen-resultado" readonly placeholder="El enlace generado aparecerá aquí..." class="w-full bg-black border border-slate-800 text-indigo-400 p-2.5 rounded-xl mt-3 text-[11px] select-all font-mono">
+
+        <!-- Zona de Mantenimiento Admin -->
+        <div class="mt-4 pt-4 border-t border-slate-800">
+            <h4 class="text-[11px] font-bold text-rose-400 mb-2">Zona de Mantenimiento</h4>
+            <button onclick="reiniciarTarjetaAdmin()" class="w-full bg-slate-950 hover:bg-slate-800 text-rose-400 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer border border-rose-500/20">🗑️ Reiniciar Datos de esta Tarjeta</button>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        
+        const negocioConfig = {
+            id: params.get("id") || params.get("nombre") || "negocio-vip",
+            nombre: decodeURIComponent(params.get("nombre") || "Establecimiento VIP"),
+            rubro: decodeURIComponent(params.get("rubro") || "Restaurantes"),
+            whatsapp: params.get("whatsapp") || "",
+            maxSellos: parseInt(params.get("max")) || 6,
+            premio: decodeURIComponent(params.get("premio") || "¡Beneficio Especial!"),
+            color: params.get("color") || "bg-indigo-600"
+        };
+
+        const storageKey = `sellos_${negocioConfig.id.toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
+        const timeKey = `ultimo_sello_${storageKey}`;
+        
+        let sellosActuales = parseInt(localStorage.getItem(storageKey)) || 0;
+
+        if (params.get("admin") === "1") {
+            document.getElementById("panel-admin").classList.remove("hidden");
+            document.getElementById("gen-nombre").value = negocioConfig.nombre;
+            document.getElementById("gen-rubro").value = negocioConfig.rubro;
+            document.getElementById("gen-whatsapp").value = negocioConfig.whatsapp;
+            document.getElementById("gen-premio").value = negocioConfig.premio;
+            document.getElementById("gen-max").value = negocioConfig.maxSellos;
+            document.getElementById("gen-color").value = negocioConfig.color;
+        }
+
+        // Mapeo de íconos SVG corporativos por rubro
+        function obtenerSvgRubro(rubro, completado) {
+            const colorClase = completado ? "text-slate-950" : "text-slate-400";
+            const r = rubro.toLowerCase();
+            
+            if (r.includes("barber") || r.includes("belleza")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z"></path></svg>`;
+            } else if (r.includes("spa")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m-9-9h18M5 5l14 14M5 19L19 5"></path></svg>`;
+            } else if (r.includes("caf") || r.includes("pasteler")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3m4-3v3m4-3v3"></path></svg>`;
+            } else if (r.includes("cevich") || r.includes("maris")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20m0 0H9m3 0h3m-9-9h12a9 9 0 01-18 0h6z"></path></svg>`;
+            } else if (r.includes("vet") || r.includes("pet")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="currentColor" viewBox="0 0 24 24"><path d="M12 11.5c-1.8 0-3.3 1.2-3.8 2.8-.4 1.2.1 2.5 1.1 3.2 1.3.9 3.9 1.5 5.4.3.9-.7 1.3-2 1-3.2-.6-1.7-2-3.1-3.7-3.1zm-4.7-2.3c.9 0 1.6-.9 1.4-1.8-.2-.9-1.1-1.5-2-1.3-.9.2-1.5 1.1-1.3 2 .2.9 1 1.1 1.9 1.1zm9.4 0c.9 0 1.7-.2 1.9-1.1.2-.9-.4-1.8-1.3-2-.9-.2-1.8.4-2 1.3-.2.9.5 1.8 1.4 1.8zM4.7 13.7c.8.4 1.8.1 2.2-.7.4-.8.1-1.8-.7-2.2-.8-.4-1.8-.1-2.2.7-.4.8-.1 1.8.7 2.2zm14.6 0c.8-.4 1.1-1.4.7-2.2-.4-.8-1.4-1.1-2.2-.7-.8.4-1.1 1.4-.7 2.2.4.8 1.4 1.1 2.2.7z"/></svg>`;
+            } else if (r.includes("dent") || r.includes("salud")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L5.605 15.12a2 2 0 00-1.022.547l-1.17 1.17a2 2 0 000 2.828l.293.293a2 2 0 002.828 0l.547-.547a6 6 0 013.86-.517l.318-.158a6 6 0 003.86-.517l2.387.477a2 2 0 001.022-.547l1.17-1.17a2 2 0 000-2.828l-.293-.293z"></path></svg>`;
+            } else if (r.includes("hotel")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`;
+            } else if (r.includes("ropa") || r.includes("tienda") || r.includes("retail")) {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>`;
+            } else {
+                return `<svg class="w-6 h-6 ${colorClase}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>`;
+            }
+        }
+
+        function renderizarApp() {
+            document.getElementById("lbl-nombre-negocio").innerText = negocioConfig.nombre;
+            document.getElementById("tag-rubro").innerText = negocioConfig.rubro;
+            document.getElementById("lbl-premio-meta").innerText = `🎯 Meta: ${negocioConfig.maxSellos} sellos = ${negocioConfig.premio}`;
+            document.getElementById("lbl-progreso-texto").innerText = `${sellosActuales} / ${negocioConfig.maxSellos} sellos`;
+
+            const boxWhatsapp = document.getElementById("box-whatsapp");
+            const linkWhatsapp = document.getElementById("link-whatsapp");
+            if (negocioConfig.whatsapp.trim() !== "") {
+                linkWhatsapp.href = `https://wa.me/${negocioConfig.whatsapp}?text=Hola,%20vengo%20de%20mi%20tarjeta%20digital%20de%20${encodeURIComponent(negocioConfig.nombre)}%20y%20deseo%20hacer%20una%20consulta.`;
+                boxWhatsapp.classList.remove("hidden");
+            } else {
+                boxWhatsapp.classList.add("hidden");
+            }
+
+            const header = document.getElementById("header-bg");
+            const btnRegistrar = document.getElementById("btn-registrar");
+            header.className = `p-6 transition-all duration-300 text-white ${negocioConfig.color} relative overflow-hidden`;
+            btnRegistrar.className = `w-full ${negocioConfig.color} hover:opacity-90 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2 cursor-pointer text-sm`;
+
+            const grid = document.getElementById("grid-sellos");
+            grid.innerHTML = "";
+
+            for (let i = 0; i < negocioConfig.maxSellos; i++) {
+                const completado = i < sellosActuales;
+                const div = document.createElement("div");
+                
+                div.className = `aspect-square rounded-2xl flex flex-col items-center justify-center font-bold text-xs transition-all duration-300 border relative overflow-hidden ${
+                    completado 
+                    ? "bg-gradient-to-br from-amber-300 to-amber-500 text-slate-950 border-amber-300 shadow-lg shadow-amber-500/20 scale-105 ring-2 ring-amber-400/50" 
+                    : "bg-slate-950/40 text-slate-600 border-slate-800"
+                }`;
+
+                const iconoSvg = obtenerSvgRubro(negocioConfig.rubro, completado);
+                div.innerHTML = `
+                    <div class="mb-1">${iconoSvg}</div>
+                    <span class="text-[10px] tracking-widest font-semibold opacity-75">${completado ? '★ Sello' : (i + 1)}</span>
+                `;
+                grid.appendChild(div);
+            }
+
+            const banner = document.getElementById("banner-premio");
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                banner.classList.remove("hidden");
+            } else {
+                banner.classList.add("hidden");
+            }
+        }
+
+        function registrarSello() {
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                alert(`¡Felicidades! Ya completaste tu tarjeta. Muestra esta pantalla en caja para canjear tu premio: ${negocioConfig.premio}`);
+                return;
+            }
+
+            const ultimaVisita = localStorage.getItem(timeKey);
+            const ahora = new Date().getTime();
+            const horas24 = 24 * 60 * 60 * 1000;
+
+            if (ultimaVisita && (ahora - parseInt(ultimaVisita)) < horas24) {
+                const tiempoRestante = horas24 - (ahora - parseInt(ultimaVisita));
+                const horasRestantes = Math.floor(tiempoRestante / (1000 * 60 * 60));
+                const minutosRestantes = Math.floor((tiempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+
+                alert(`⏱️ ¡Ya registraste tu sello de hoy!\n\nVuelve en ${horasRestantes}h ${minutosRestantes}m para sumar tu siguiente visita a ${negocioConfig.nombre}.`);
+                return;
+            }
+
+            sellosActuales++;
+            localStorage.setItem(storageKey, sellosActuales);
+            localStorage.setItem(timeKey, ahora);
+            
+            renderizarApp();
+
+            if (sellosActuales === negocioConfig.maxSellos) {
+                alert(`🎉 ¡SELLO REGISTRADO!\n\n¡Felicidades, completaste tus ${negocioConfig.maxSellos} sellos en ${negocioConfig.nombre}! Ganaste: ${negocioConfig.premio}`);
+            } else {
+                alert(`✅ ¡Sello añadido con éxito! (${sellosActuales}/${negocioConfig.maxSellos})\n\n¡Gracias por tu visita!`);
+            }
+        }
+
+        function canjearPremio() {
+            if (sellosActuales >= negocioConfig.maxSellos) {
+                if (confirm(`¿Desea canjear el premio "${negocioConfig.premio}" y reiniciar la tarjeta?`)) {
+                    sellosActuales = 0;
+                    localStorage.setItem(storageKey, sellosActuales);
+                    localStorage.removeItem(timeKey);
+                    renderizarApp();
+                    alert("🎁 ¡Premio canjeado con éxito! Tarjeta lista para un nuevo ciclo.");
+                }
+            } else {
+                alert(`Aún te faltan sellos para canjear el premio (${sellosActuales}/${negocioConfig.maxSellos}).`);
+            }
+        }
+
+        function reiniciarTarjetaAdmin() {
+            if (confirm("⚠️ ¿Estás seguro de reiniciar los sellos y datos de esta tarjeta desde el panel admin?")) {
+                sellosActuales = 0;
+                localStorage.setItem(storageKey, sellosActuales);
+                localStorage.removeItem(timeKey);
+                renderizarApp();
+                alert("🔄 Tarjeta reiniciada con éxito por administración.");
+            }
+        }
+
+        function generarEnlaceCliente() {
+            const nombre = document.getElementById("gen-nombre").value.trim();
+            const rubro = document.getElementById("gen-rubro").value;
+            const whatsapp = document.getElementById("gen-whatsapp").value.trim();
+            const premio = document.getElementById("gen-premio").value.trim();
+            const max = document.getElementById("gen-max").value;
+            const color = document.getElementById("gen-color").value;
+
+            if (!nombre || !premio) {
+                alert("Por favor completa al menos el nombre y el premio.");
+                return;
+            }
+
+            const idUnico = nombre.toLowerCase().replace(/[^a-z0-9]/g, "-");
+            const baseUrl = window.location.origin + window.location.pathname;
+            const urlFinal = `${baseUrl}?id=${idUnico}&nombre=${encodeURIComponent(nombre)}&rubro=${encodeURIComponent(rubro)}&whatsapp=${encodeURIComponent(whatsapp)}&max=${max}&premio=${encodeURIComponent(premio)}&color=${encodeURIComponent(color)}`;
+            
+            document.getElementById("gen-resultado").value = urlFinal;
+        }
+
+        renderizarApp();
+    </script>
+</body>
+</html>
